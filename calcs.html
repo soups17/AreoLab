@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AeroLab — Full Calculations Worksheet</title>
+<meta name="description" content="Every number in AeroLab, derived step by step — atmosphere, panel method, lifting line, stall, drag build-up, and flight performance. Every parameter editable.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23070C15'/><path d='M4 20 Q10 10 20 12 Q27 13.5 28 17 Q20 20 12 20 Z' fill='none' stroke='%23D7E0EA' stroke-width='1.8'/></svg>">
+<style>
+:root{
+  --bg:#EDF1F6; --panel:#FFFFFF; --panel2:#F6F9FC; --well:#F2F6FA;
+  --line:#E4EAF1; --line2:#CDD8E3;
+  --ink:#0E1A2B; --tx:#28394E; --plat:#0E1A2B; --mut:#5D6E82; --dim:#96A3B3;
+  --acc:#1D4ED8; --acc2:#15389E; --accw:#EBF0FD;
+  --amber:#B4770F; --red:#C8451F; --green:#0F7B4D;
+  --mono:'Spline Sans Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:'Schibsted Grotesk',system-ui,sans-serif;
+  --ui:'Instrument Sans',system-ui,sans-serif;
+  --sh:0 1px 2px rgba(14,26,43,.05),0 6px 22px -8px rgba(14,26,43,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--ui);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+header{position:sticky;top:0;z-index:10;background:var(--panel);border-bottom:1px solid var(--line)}
+.head-in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;height:60px;padding:0 22px}
+.mark{font-family:var(--disp);font-weight:700;font-size:17px;color:var(--ink);white-space:nowrap}
+.mark b{color:var(--acc);font-weight:700}
+.spacer{flex:1}
+.back{font-family:var(--ui);font-weight:500;font-size:12.5px;color:var(--mut);
+  border:1px solid var(--line2);border-radius:99px;padding:7px 15px;background:var(--panel);
+  text-decoration:none;transition:all .15s}
+.back:hover{color:var(--ink);background:var(--panel2);box-shadow:var(--sh)}
+.wrap{max-width:880px;margin:0 auto;padding:34px 22px 70px}
+h1{font-family:var(--disp);font-weight:700;font-size:29px;letter-spacing:-.015em;color:var(--ink);
+  margin:6px 0 8px}
+.sub{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.2em;color:var(--dim)}
+.lede{font-size:15px;line-height:1.7;color:var(--mut);max-width:64ch;margin:10px 0 26px}
+.lede b{color:var(--ink)}
+.seclab{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.16em;
+  color:var(--dim);margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+.seclab b{display:none}
+.seclab::after{content:'';flex:1;height:1px;background:var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{font-family:var(--ui);font-size:12.5px;font-weight:500;color:var(--mut);
+  border:1px solid var(--line2);border-radius:99px;padding:7px 14px;background:var(--panel);
+  transition:all .15s}
+.chip:hover{color:var(--acc);border-color:var(--acc);background:var(--accw)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:14px 0}
+.in{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+  box-shadow:var(--sh)}
+.in .k{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;color:var(--dim);
+  display:block;margin-bottom:6px;text-transform:uppercase}
+.in .u{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-left:4px}
+.in input{width:100%;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);
+  background:var(--well);border:1px solid var(--line2);border-radius:8px;padding:8px 10px}
+.in input:focus{outline:none;border-color:var(--acc);background:#fff}
+.note{background:var(--accw);border:1px solid #D6E1FA;border-radius:12px;
+  padding:13px 16px;font-size:13px;line-height:1.65;color:var(--tx);margin:16px 0}
+.note b{color:var(--acc2)}
+.frow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding:9px 2px;border-bottom:1px dashed var(--line);font-size:13.5px}
+.fsub{color:var(--mut);font-size:12.5px}
+.fsub b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.fsub .warn{color:var(--amber)}
+.ftex{margin:10px 0;overflow-x:auto}
+.ftex .katex{font-size:1.02em;color:var(--ink)}
+.ov{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tx);padding:6px 0}
+.ov input[type=number]{width:110px;font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--well);border:1px solid var(--line2);border-radius:8px;padding:7px 10px}
+.ov input[type=checkbox]{accent-color:var(--acc);width:15px;height:15px}
+.seclab .tag{font-size:9px;color:var(--acc);background:var(--accw);border-radius:99px;
+  padding:2px 8px;letter-spacing:.1em}
+footer{max-width:880px;margin:0 auto;padding:0 22px 50px;font-size:12px;color:var(--dim)}
+
+</style>
+</head>
+<body>
+<header><div class="head-in">
+  <span class="mark">AERO<b>LAB</b></span>
+  <span class="sub">FULL CALCULATIONS WORKSHEET · v11</span>
+  <span class="spacer"></span>
+  <a class="back" href="index.html">← BACK TO THE TUNNEL</a>
+</div></header>
+
+<div class="wrap">
+  <h1>EVERY NUMBER, DERIVED</h1>
+  <p class="lede">The complete calculation chain behind AeroLab — from the atmosphere down to turn radius. Every field is editable and every result recomputes live, including a fresh Hess–Smith panel solution whenever the section changes. Open this page from the tunnel's CALCS panel and it inherits your exact configuration.</p>
+
+  <div class="seclab"><b>▮</b> 0 · CONFIGURATION <span class="tag">ALL EDITABLE</span></div>
+  <div class="grid">
+    <div class="in"><div class="k">Max camber m</div><input id="in-m" type="number" step="0.5" min="0" max="9"><div class="u">% chord</div></div>
+    <div class="in"><div class="k">Camber position p</div><input id="in-p" type="number" step="5" min="10" max="90"><div class="u">% chord</div></div>
+    <div class="in"><div class="k">Thickness t</div><input id="in-t" type="number" step="0.5" min="6" max="24"><div class="u">% chord</div></div>
+    <div class="in"><div class="k">Root chord c_r</div><input id="in-chord" type="number" step="0.05" min="0.2" max="5"><div class="u">m</div></div>
+    <div class="in"><div class="k">Span b</div><input id="in-span" type="number" step="0.25" min="1" max="30"><div class="u">m</div></div>
+    <div class="in"><div class="k">Taper ratio λ</div><input id="in-taper" type="number" step="0.05" min="0.2" max="1"><div class="u">c_tip / c_root</div></div>
+    <div class="in"><div class="k">Sweep Λ</div><input id="in-sweep" type="number" step="1" min="0" max="40"><div class="u">degrees</div></div>
+    <div class="in"><div class="k">Angle of attack α</div><input id="in-alpha" type="number" step="0.5" min="-14" max="24"><div class="u">degrees</div></div>
+    <div class="in"><div class="k">Airspeed V∞</div><input id="in-V" type="number" step="1" min="1" max="200"><div class="u">m/s</div></div>
+    <div class="in"><div class="k">Air temperature T</div><input id="in-T" type="number" step="1" min="180" max="330"><div class="u">K</div></div>
+    <div class="in"><div class="k">Air density ρ</div><input id="in-rho" type="number" step="0.001" min="0.05" max="2"><div class="u">kg/m³</div></div>
+    <div class="in"><div class="k">Viscosity μ</div><input id="in-mu" type="number" step="0.0000001" min="0.000001" max="0.0001"><div class="u">Pa·s</div></div>
+    <div class="in"><div class="k">Altitude h</div><input id="in-h" type="number" step="100" min="0" max="11000" value="0"><div class="u">m — then apply ISA →</div></div>
+    <div class="in"><div class="k">Aircraft weight W</div><input id="in-W" type="number" step="100" min="10" max="500000"><div class="u">N (for performance)</div></div>
+    <div class="in"><div class="k">Bank angle φ</div><input id="in-bank" type="number" step="5" min="0" max="75"><div class="u">degrees (turn)</div></div>
+  </div>
+  <div class="chips">
+    <button class="chip" id="btn-isa">APPLY ISA ATMOSPHERE AT h</button>
+    <span class="ov"><input type="checkbox" id="ov-e"> override Oswald e <input type="number" id="ov-e-v" step="0.01" min="0.3" max="1" value="0.85"></span>
+    <span class="ov"><input type="checkbox" id="ov-cd0"> override C_d0 <input type="number" id="ov-cd0-v" step="0.001" min="0.002" max="0.08" value="0.008"></span>
+    <span class="ov"><input type="checkbox" id="ov-cap"> stall cap factor <input type="number" id="ov-cap-v" step="0.05" min="0.6" max="1.1" value="0.9"></span>
+  </div>
+
+  <div class="seclab"><b>▮</b> 1 · ATMOSPHERE</div>
+  <p class="note">The International Standard Atmosphere fixes temperature, density, and viscosity from altitude. Apply it above, or type your own values — everything downstream updates either way.</p>
+  <div class="frow"><span class="ftex" data-tex="T = 288.15 - 0.0065\,h"></span><span class="fsub" id="o-isa"></span></div>
+  <div class="frow"><span class="ftex" data-tex="a = \sqrt{\gamma R T},\qquad M = V_\infty / a"></span><span class="fsub" id="o-mach"></span></div>
+  <div class="frow"><span class="ftex" data-tex="\beta = 1/\sqrt{1-M^2}"></span><span class="fsub" id="o-pg"></span></div>
+
+  <div class="seclab"><b>▮</b> 2 · FREESTREAM</div>
+  <div class="frow"><span class="ftex" data-tex="q_\infty = \tfrac{1}{2}\rho V_\infty^2"></span><span class="fsub" id="o-q"></span></div>
+  <div class="frow"><span class="ftex" data-tex="Re = \dfrac{\rho V_\infty \bar c}{\mu}"></span><span class="fsub" id="o-re"></span></div>
+
+  <div class="seclab"><b>▮</b> 3 · WING GEOMETRY</div>
+  <div class="frow"><span class="ftex" data-tex="\bar c = \dfrac{c_r(1+\lambda)}{2}"></span><span class="fsub" id="o-cbar"></span></div>
+  <div class="frow"><span class="ftex" data-tex="S = \bar c\, b,\qquad AR = \dfrac{b^2}{S}"></span><span class="fsub" id="o-sar"></span></div>
+
+  <div class="seclab"><b>▮</b> 4 · SECTION — HESS–SMITH PANEL METHOD</div>
+  <p class="note">The airfoil contour is rebuilt from m, p, t above and re-solved here in your browser: 112 panels, constant source strength per panel plus one shared vortex strength, flow tangency at each midpoint, and a Kutta condition at the trailing edge. The 113×113 system is solved for two freestream bases, so every α is a superposition.</p>
+  <div class="frow"><span class="ftex" data-tex="a_0 = \dfrac{dc_l}{d\alpha}\Big|_{2D}"></span><span class="fsub" id="o-a0"></span></div>
+  <div class="frow"><span class="ftex" data-tex="\alpha_{L=0}"></span><span class="fsub" id="o-al0"></span></div>
+  <div class="frow"><span class="ftex" data-tex="c_l(\alpha) = a_0(\alpha-\alpha_{L=0})"></span><span class="fsub" id="o-cl2d"></span></div>
+  <div class="frow"><span class="ftex" data-tex="c_{m,c/4}"></span><span class="fsub" id="o-cm"></span></div>
+  <div class="frow"><span class="ftex" data-tex="c_{l,max}^{2D} \approx 1.45 + 5m - 4\,|t-0.13|"></span><span class="fsub" id="o-clmax2d"></span></div>
+
+  <div class="seclab"><b>▮</b> 5 · FINITE WING — LIFTING-LINE</div>
+  <div class="frow"><span class="ftex" data-tex="e = 0.98 - 0.06\tfrac{\Lambda}{30^\circ} - 0.06|1-\lambda|"></span><span class="fsub" id="o-e"></span></div>
+  <div class="frow"><span class="ftex" data-tex="a = \dfrac{a_0\cos\Lambda}{1 + \dfrac{a_0\cos\Lambda}{\pi e\,AR}}"></span><span class="fsub" id="o-a3"></span></div>
+  <div class="frow"><span class="ftex" data-tex="C_L = a(\alpha - \alpha_{L=0})"></span><span class="fsub" id="o-cl"></span></div>
+
+  <div class="seclab"><b>▮</b> 6 · STALL MODEL</div>
+  <div class="frow"><span class="ftex" data-tex="C_{L,cap} = k\, c_{l,max}^{2D}\cos\Lambda"></span><span class="fsub" id="o-cap"></span></div>
+  <div class="frow"><span class="ftex" data-tex="C_{L,max},\ \alpha_{stall}"></span><span class="fsub" id="o-stall"></span></div>
+
+  <div class="seclab"><b>▮</b> 7 · DRAG BUILD-UP</div>
+  <div class="frow"><span class="ftex" data-tex="C_{d0} = 2C_f\,FF,\quad C_f = \dfrac{0.455}{(\log_{10}Re)^{2.58}}"></span><span class="fsub" id="o-cd0"></span></div>
+  <div class="frow"><span class="ftex" data-tex="C_{D,i} = \dfrac{C_L^2}{\pi e\, AR}"></span><span class="fsub" id="o-cdi"></span></div>
+  <div class="frow"><span class="ftex" data-tex="C_D = C_{d0} + C_{D,i} + C_{D,sep}"></span><span class="fsub" id="o-cd"></span></div>
+
+  <div class="seclab"><b>▮</b> 8 · FORCES</div>
+  <div class="frow"><span class="ftex" data-tex="L = q_\infty S\, C_L,\qquad D = q_\infty S\, C_D"></span><span class="fsub" id="o-forces"></span></div>
+
+  <div class="seclab"><b>▮</b> 9 · FLIGHT PERFORMANCE</div>
+  <p class="note">Feed in an aircraft weight and this wing's numbers become flight numbers.</p>
+  <div class="frow"><span class="ftex" data-tex="C_{L,level} = \dfrac{2W}{\rho V_\infty^2 S}"></span><span class="fsub" id="o-cllevel"></span></div>
+  <div class="frow"><span class="ftex" data-tex="V_{stall} = \sqrt{\dfrac{2W}{\rho S\, C_{L,max}}}"></span><span class="fsub" id="o-vstall"></span></div>
+  <div class="frow"><span class="ftex" data-tex="n = \dfrac{1}{\cos\varphi},\qquad V_{stall,n} = V_{stall}\sqrt{n}"></span><span class="fsub" id="o-n"></span></div>
+  <div class="frow"><span class="ftex" data-tex="R = \dfrac{V_\infty^2}{g\tan\varphi},\qquad \dot\psi = \dfrac{V_\infty}{R}"></span><span class="fsub" id="o-turn"></span></div>
+
+  <footer>AEROLAB · BUILT BY MICHAEL SUPPAN — MECHANICAL ENGINEERING, UNIVERSITY OF KENTUCKY '27 · THIS PAGE SOLVES THE PANEL METHOD LIVE IN YOUR BROWSER</footer>
+</div>
+
+<script>
+/* ============================================================
+   AeroLab physics v2
+   Section aerodynamics: Hess–Smith constant source + vortex
+   panel method solved on the actual contour (any shape).
+   3D wing: lifting-line correction + empirical stall blend.
+   ============================================================ */
+let RHO = 1.225, MU = 1.81e-5;
+const D2R = Math.PI / 180;
+
+function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+function mix(a, b, s) { return a + (b - a) * s; }
+function sstep(a, b, x) { const s = clamp((x - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); }
+function softmin(a, b, k) { // smooth min, k ~ sharpness
+  const h = clamp(0.5 + 0.5 * (b - a) / k, 0, 1);
+  return mix(b, a, h) - k * h * (1 - h);
+}
+
+/* ---------------- geometry grid ---------------- */
+const KPTS = 57;                       // chordwise sample stations per surface
+const XI = new Float64Array(KPTS);     // 1 (TE) -> 0 (LE), cosine spaced
+for (let k = 0; k < KPTS; k++) XI[k] = 0.5 * (1 + Math.cos(Math.PI * k / (KPTS - 1)));
+
+/* NACA 4-digit generators (closed TE) */
+function thicknessDist(t, x) {
+  return 5 * t * (0.2969 * Math.sqrt(x) - 0.1260 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4);
+}
+function camberDist(m, p, x) {
+  if (m <= 0) return { yc: 0, dyc: 0 };
+  if (x < p) return { yc: m / (p * p) * (2 * p * x - x * x), dyc: 2 * m / (p * p) * (p - x) };
+  const q = (1 - p) * (1 - p);
+  return { yc: m / q * ((1 - 2 * p) + 2 * p * x - x * x), dyc: 2 * m / q * (p - x) };
+}
+
+function sampleNACA(m, p, t) {
+  const yu = new Float64Array(KPTS), yl = new Float64Array(KPTS);
+  for (let k = 0; k < KPTS; k++) {
+    const x = XI[k], c = camberDist(m, p, x), th = thicknessDist(t, x);
+    yu[k] = c.yc + th; yl[k] = c.yc - th;
+  }
+  yu[0] = yl[0] = 0;                 // sharp TE
+  yu[KPTS - 1] = yl[KPTS - 1] = 0;   // LE point
+  return { yu, yl };
+}
+
+/* linear interpolation of a sampled surface at arbitrary xi (XI is descending) */
+function surfInterp(arr, xi) {
+  xi = clamp(xi, 0, 1);
+  let lo = 0, hi = KPTS - 1;                    // XI[lo]=1 ... XI[hi]=0
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; (XI[mid] >= xi) ? lo = mid : hi = mid; }
+  const x0 = XI[lo], x1 = XI[hi];
+  const s = (x0 - xi) / Math.max(1e-12, x0 - x1);
+  return mix(arr[lo], arr[hi], s);
+}
+
+/* ---------------- .dat import / export ---------------- */
+function parseDat(text) {
+  const lines = text.split(/\r?\n/);
+  let name = 'IMPORTED';
+  const pts = [];
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i].trim();
+    if (!ln) { pts.push(null); continue; }               // keep blank separators
+    const m = ln.match(/(-?\d*\.?\d+(?:[eE][+-]?\d+)?)\s+(-?\d*\.?\d+(?:[eE][+-]?\d+)?)/);
+    if (m) pts.push([parseFloat(m[1]), parseFloat(m[2])]);
+    else if (pts.filter(Boolean).length === 0) name = ln.slice(0, 22);
+  }
+  const nums = pts.filter(Boolean);
+  if (nums.length < 8) throw new Error('Not enough coordinate pairs in file.');
+
+  let up = [], lo = [];
+  const looksLikeCounts = nums[0][0] > 1.5 && nums[0][1] > 1.5;   // Lednicer header "n m"
+  const body = looksLikeCounts ? nums.slice(1) : nums;
+
+  // find blank-separated blocks (Lednicer) on the raw stream
+  const blocks = []; let cur = [];
+  for (const p of (looksLikeCounts ? pts.slice(pts.indexOf(nums[0]) + 1) : pts)) {
+    if (p === null) { if (cur.length) { blocks.push(cur); cur = []; } }
+    else cur.push(p);
+  }
+  if (cur.length) blocks.push(cur);
+
+  if (blocks.length >= 2 && blocks[0].length > 3 && blocks[1].length > 3) {
+    up = blocks[0].slice(); lo = blocks[1].slice();                 // Lednicer: LE->TE each
+  } else {
+    // Selig: TE -> upper -> LE -> lower -> TE ; split at min-x
+    let iMin = 0;
+    for (let i = 1; i < body.length; i++) if (body[i][0] < body[iMin][0]) iMin = i;
+    up = body.slice(0, iMin + 1).reverse();                          // now LE->TE
+    lo = body.slice(iMin);                                           // LE->TE
+  }
+  // normalize chord to [0,1], LE at x=0
+  let xmin = 1e9, xmax = -1e9, yLE = 0;
+  for (const p of [...up, ...lo]) { if (p[0] < xmin) { xmin = p[0]; yLE = p[1]; } if (p[0] > xmax) xmax = p[0]; }
+  const c = Math.max(1e-9, xmax - xmin);
+  const nrm = a => a.map(p => [(p[0] - xmin) / c, (p[1] - yLE) / c])
+                    .sort((A, B) => A[0] - B[0]);
+  up = nrm(up); lo = nrm(lo);
+  if (avgY(up) < avgY(lo)) { const t = up; up = lo; lo = t; }        // ensure upper on top
+
+  const interp = (arr, x) => {
+    if (x <= arr[0][0]) return arr[0][1];
+    for (let i = 1; i < arr.length; i++) if (arr[i][0] >= x) {
+      const [x0, y0] = arr[i - 1], [x1, y1] = arr[i];
+      return mix(y0, y1, (x - x0) / Math.max(1e-12, x1 - x0));
+    }
+    return arr[arr.length - 1][1];
+  };
+  const yu = new Float64Array(KPTS), yl = new Float64Array(KPTS);
+  for (let k = 0; k < KPTS; k++) { yu[k] = interp(up, XI[k]); yl[k] = interp(lo, XI[k]); }
+  yu[KPTS - 1] = yl[KPTS - 1] = 0;
+  yu[0] = yl[0] = 0.5 * (yu[0] + yl[0]);                             // close the TE (blunt gaps get pinched)
+  for (let k = 1; k < KPTS - 1; k++) {
+    const g = 5e-4 * Math.min(1, (1 - XI[k]) / 0.03);   // relax to 0 at the sharp TE
+    if (yu[k] < yl[k] + g) yu[k] = yl[k] + g;
+  }
+  return { name: name || 'IMPORTED', yu, yl };
+}
+function avgY(a) { let s = 0; for (const p of a) s += p[1]; return s / a.length; }
+
+function exportDat(shape, name) {
+  let out = (name || 'AEROLAB CUSTOM') + '\n';
+  for (let k = 0; k < KPTS; k++)      out += XI[k].toFixed(6) + '  ' + shape.yu[k].toFixed(6) + '\n'; // TE->LE upper
+  for (let k = 1; k < KPTS; k++)      out += XI[KPTS - 1 - k].toFixed(6) + '  ' + shape.yl[KPTS - 1 - k].toFixed(6) + '\n'; // LE->TE lower
+  return out;
+}
+
+/* ---------------- Hess–Smith panel solver ----------------
+   Nodes: TE -> lower -> LE -> upper -> TE (outward normals
+   with n = (-sin th, cos th)). Unknowns: N source strengths
+   + 1 vortex strength; N tangency eqns + Kutta.
+   Solved for two freestream bases (1,0) and (0,1); every
+   angle of attack is a superposition — no re-solve needed. */
+function solveSection(shape) {
+  const K = KPTS, M = 2 * K - 1, N = M - 1;
+  const nx = new Float64Array(M), ny = new Float64Array(M);
+  for (let k = 0; k < K; k++) { nx[k] = XI[k]; ny[k] = shape.yl[k]; }             // TE->LE lower
+  for (let k = 1; k < K; k++) { nx[K - 1 + k] = XI[K - 1 - k]; ny[K - 1 + k] = shape.yu[K - 1 - k]; } // LE->TE upper
+
+  const xm = new Float64Array(N), ym = new Float64Array(N), S = new Float64Array(N),
+        ct = new Float64Array(N), st = new Float64Array(N);
+  let perim = 0;
+  for (let j = 0; j < N; j++) {
+    const dx = nx[j + 1] - nx[j], dy = ny[j + 1] - ny[j];
+    S[j] = Math.hypot(dx, dy); perim += S[j];
+    ct[j] = dx / S[j]; st[j] = dy / S[j];
+    xm[j] = 0.5 * (nx[j] + nx[j + 1]); ym[j] = 0.5 * (ny[j] + ny[j + 1]);
+  }
+
+  // influence of unit source (us,vs) and unit vortex (uv,vv) from panel j at point (px,py), global frame
+  function infl(px, py, j, self) {
+    const dx = px - nx[j], dy = py - ny[j];
+    const xl =  dx * ct[j] + dy * st[j];
+    const yl = -dx * st[j] + dy * ct[j];
+    let lnr, beta;
+    if (self) { lnr = 0; beta = Math.PI; }
+    else {
+      const r1s = xl * xl + yl * yl, r2s = (xl - S[j]) * (xl - S[j]) + yl * yl;
+      lnr = 0.5 * Math.log(r1s / r2s);
+      beta = Math.atan2(yl, xl - S[j]) - Math.atan2(yl, xl);
+      if (beta > Math.PI) beta -= 2 * Math.PI; else if (beta < -Math.PI) beta += 2 * Math.PI;
+    }
+    const f = 1 / (2 * Math.PI);
+    const usl = f * lnr,  vsl = f * beta;    // source, local
+    const uvl = f * beta, vvl = -f * lnr;    // vortex, local
+    return {
+      us: usl * ct[j] - vsl * st[j], vs: usl * st[j] + vsl * ct[j],
+      uv: uvl * ct[j] - vvl * st[j], vv: uvl * st[j] + vvl * ct[j]
+    };
+  }
+
+  // assemble (N+1)x(N+1) with columns: q_0..q_{N-1}, gamma  — plus tangential influence tables
+  const A = []; for (let i = 0; i <= N; i++) A.push(new Float64Array(N + 1));
+  const Ts = []; for (let i = 0; i < N; i++) Ts.push(new Float64Array(N));   // tangential source infl
+  const Tv = new Float64Array(N);                                            // tangential vortex infl (summed)
+  for (let i = 0; i < N; i++) {
+    const nix = -st[i], niy = ct[i];
+    let vSum = 0;
+    for (let j = 0; j < N; j++) {
+      const I = infl(xm[i], ym[i], j, i === j);
+      A[i][j] = I.us * nix + I.vs * niy;
+      A[i][N] = (A[i][N] || 0) + (I.uv * nix + I.vv * niy);
+      Ts[i][j] = I.us * ct[i] + I.vs * st[i];
+      vSum += I.uv * ct[i] + I.vv * st[i];
+    }
+    Tv[i] = vSum;
+  }
+  // Kutta: tangential velocities on the two TE panels cancel (t_0 + t_{N-1} directions oppose)
+  for (let j = 0; j <= N; j++) A[N][j] = 0;
+  for (const i of [0, N - 1]) {
+    for (let j = 0; j < N; j++) A[N][j] += Ts[i][j];
+    A[N][N] += Tv[i];
+  }
+
+  // two RHS: freestream (1,0) and (0,1)
+  const b1 = new Float64Array(N + 1), b2 = new Float64Array(N + 1);
+  for (let i = 0; i < N; i++) { b1[i] = st[i];  b2[i] = -ct[i]; }   // -(n·V∞) with n=(-st,ct)
+  b1[N] = -(ct[0] + ct[N - 1]);  b2[N] = -(st[0] + st[N - 1]);      // -(t0+tN-1)·V∞
+
+  const sol = gauss2(A, b1, b2), q1 = sol[0], q2 = sol[1];
+
+  // tangential velocity fields for both bases
+  const Vx = new Float64Array(N), Vy = new Float64Array(N);
+  for (let i = 0; i < N; i++) {
+    let s1 = ct[i], s2 = st[i];
+    for (let j = 0; j < N; j++) { s1 += q1[j] * Ts[i][j]; s2 += q2[j] * Ts[i][j]; }
+    s1 += q1[N] * Tv[i]; s2 += q2[N] * Tv[i];
+    Vx[i] = s1; Vy[i] = s2;
+  }
+
+  // force / moment quadrature weights (about quarter chord)
+  let F = { x: [0, 0, 0, 0], y: [0, 0, 0, 0], m: [0, 0, 0, 0] };
+  for (let i = 0; i < N; i++) {
+    const wx = st[i] * S[i], wy = -ct[i] * S[i];                       // -n*S
+    const wm = ((xm[i] - 0.25) * ct[i] + ym[i] * st[i]) * S[i];        // nose-up positive: -Mz
+    acc(F.x, wx, Vx[i], Vy[i]); acc(F.y, wy, Vx[i], Vy[i]); acc(F.m, wm, Vx[i], Vy[i]);
+  }
+  function acc(W, w, vx, vy) { W[0] += w; W[1] += w * vx * vx; W[2] += w * vx * vy; W[3] += w * vy * vy; }
+  const evalW = (W, cA, sA) => W[0] - (cA * cA * W[1] + 2 * cA * sA * W[2] + sA * sA * W[3]);
+  const cl2d = a => { const cA = Math.cos(a), sA = Math.sin(a);
+    return evalW(F.y, cA, sA) * cA - evalW(F.x, cA, sA) * sA; };
+  const cm2d = a => evalW(F.m, Math.cos(a), Math.sin(a));
+
+  // slope & zero-lift from the (nearly linear) inviscid curve
+  const c1 = cl2d(-2 * D2R), c2 = cl2d(2 * D2R);
+  const a2d = (c2 - c1) / (4 * D2R);
+  const alpha0 = -2 * D2R - c1 / a2d;
+
+  // node Cp accessors (avg of adjacent panels): lower panels 0..K-2, upper panels K-1..N-1
+  const VxU = new Float64Array(K), VyU = new Float64Array(K),
+        VxL = new Float64Array(K), VyL = new Float64Array(K);
+  for (let k = 0; k < K; k++) {
+    const jl0 = clamp(k - 1, 0, K - 2), jl1 = clamp(k, 0, K - 2);          // lower panels around node k
+    VxL[k] = 0.5 * (Vx[jl0] + Vx[jl1]); VyL[k] = 0.5 * (Vy[jl0] + Vy[jl1]);
+    const iu = K - 1 - k;                                                   // upper: node index from LE
+    const ju0 = clamp(K - 1 + iu - 1, K - 1, N - 1), ju1 = clamp(K - 1 + iu, K - 1, N - 1);
+    VxU[k] = 0.5 * (Vx[ju0] + Vx[ju1]); VyU[k] = 0.5 * (Vy[ju0] + Vy[ju1]);
+  }
+
+  // effective thickness / camber for empirical stall & profile drag
+  let tEff = 0, mEff = 0;
+  for (let k = 0; k < K; k++) {
+    tEff = Math.max(tEff, shape.yu[k] - shape.yl[k]);
+    mEff = Math.max(mEff, Math.abs(0.5 * (shape.yu[k] + shape.yl[k])));
+  }
+  const clmax2d = clamp(1.45 + 5 * mEff - 4 * Math.abs(tEff - 0.13), 0.9, 2.3);
+  const cd0 = 0.006 + 0.0045 * (tEff / 0.12) + 0.05 * mEff;
+
+  return { K, N, a2d, alpha0, cl2d, cm2d, clmax2d, cd0, tEff, mEff,
+           VxU, VyU, VxL, VyL, gamma: [q1[N], q2[N]], perim };
+}
+
+/* Gaussian elimination, partial pivoting, two RHS */
+function gauss2(A, b1, b2) {
+  const n = b1.length, x1 = Float64Array.from(b1), x2 = Float64Array.from(b2);
+  const Mx = A.map(r => Float64Array.from(r));
+  for (let c = 0; c < n; c++) {
+    let p = c;
+    for (let r = c + 1; r < n; r++) if (Math.abs(Mx[r][c]) > Math.abs(Mx[p][c])) p = r;
+    if (p !== c) { const t = Mx[c]; Mx[c] = Mx[p]; Mx[p] = t;
+      let s = x1[c]; x1[c] = x1[p]; x1[p] = s; s = x2[c]; x2[c] = x2[p]; x2[p] = s; }
+    const piv = Mx[c][c];
+    for (let r = c + 1; r < n; r++) {
+      const f = Mx[r][c] / piv; if (!f) continue;
+      for (let k = c; k < n; k++) Mx[r][k] -= f * Mx[c][k];
+      x1[r] -= f * x1[c]; x2[r] -= f * x2[c];
+    }
+  }
+  for (let r = n - 1; r >= 0; r--) {
+    let s1 = x1[r], s2 = x2[r];
+    for (let k = r + 1; k < n; k++) { s1 -= Mx[r][k] * x1[k]; s2 -= Mx[r][k] * x2[k]; }
+    x1[r] = s1 / Mx[r][r]; x2[r] = s2 / Mx[r][r];
+  }
+  return [x1, x2];
+}
+
+/* Reynolds-dependent profile drag: turbulent flat-plate skin friction
+   (Schlichting) with an airfoil form factor — replaces the fixed constant */
+function cd0Visc(sec, Re) {
+  const Cf = 0.455 / Math.pow(Math.log10(Math.max(3e4, Re)), 2.58);
+  const FF = 1 + 2.7 * sec.tEff + 100 * Math.pow(sec.tEff, 4);
+  return 2 * Cf * FF + 0.010 * sec.mEff;
+}
+
+/* ---------------- 3D wing aerodynamics ----------------
+   P: {chord, span, taper, sweep, dihedral, alpha, V}
+   sec: cached solveSection() result                    */
+function computeAero(P, sec, alphaDegOverride) {
+  const aDeg = alphaDegOverride === undefined ? P.alpha : alphaDegOverride;
+  const a = aDeg * D2R;
+  const cr = P.chord, lam = P.taper, b = P.span;
+  const cMean = cr * (1 + lam) / 2, Sw = cMean * b, AR = b * b / Sw;
+  const sw = P.sweep * D2R, cosL = Math.cos(sw);
+
+  const e = clamp(0.98 - 0.06 * (P.sweep / 30) - 0.06 * Math.abs(1 - lam), 0.72, 0.98);
+  const a0 = sec.a2d;
+  const a3 = a0 * cosL / (1 + a0 * cosL / (Math.PI * e * AR));
+
+  const CLcap = 0.9 * sec.clmax2d * cosL;
+  const aStar = sec.alpha0 + CLcap / a3;                    // nominal attached-limit alpha
+  const twist = (P.washout || 0) * D2R * 0.45;          // washout unloads the wing slightly
+  const CLlin = a3 * (a - sec.alpha0 - twist);
+  const CLatt = a >= sec.alpha0
+    ? softmin(CLcap, CLlin, 0.22)
+    : -softmin(0.82 * CLcap, -CLlin, 0.22);
+
+  // post-stall blend to flat plate
+  const CLfp = 1.15 * Math.sin(2 * (a - sec.alpha0)) * cosL;
+  const dPos = (a - aStar) / D2R, dNeg = ((sec.alpha0 - CLcap * 0.82 / a3) - a) / D2R;
+  const sPos = sstep(-1.5, 4.5, dPos), sNeg = sstep(-1.5, 4.5, dNeg);
+  const sSep = Math.max(sPos, sNeg);
+  const CL = mix(CLatt, CLfp, sSep);
+
+  const Re0 = RHO * P.V * cMean / MU;
+  const cd0 = cd0Visc(sec, Re0);
+  const CD = cd0 + CL * CL / (Math.PI * e * AR) + sSep * 1.3 * Math.sin(a) * Math.sin(a);
+
+  // section pitching moment at the wing's effective operating point
+  const aEff = sec.alpha0 + CL / Math.max(1e-6, a3) * (a3 / a0);   // back to 2D-equivalent alpha
+  const Cm = sec.cm2d(aEff) - 0.10 * sSep;
+
+  const q = 0.5 * RHO * P.V * P.V;
+  return { CL, CD, Cm, cd0, LD: CL / Math.max(1e-6, CD), L: q * Sw * CL, D: q * Sw * CD,
+           q, Re: Re0, S: Sw, AR, e, a3, sSep, aEff, alpha0: sec.alpha0 };
+}
+
+function liftCurve(P, sec, aMin, aMax, n) {
+  const alpha = [], CL = [];
+  let CLmax = -9, CLmin = 9, aStallDeg = 12, aStallNegDeg = -10;
+  for (let i = 0; i < n; i++) {
+    const a = aMin + (aMax - aMin) * i / (n - 1);
+    const r = computeAero(P, sec, a);
+    alpha.push(a); CL.push(r.CL);
+    if (r.CL > CLmax) { CLmax = r.CL; aStallDeg = a; }
+    if (r.CL < CLmin) { CLmin = r.CL; aStallNegDeg = a; }
+  }
+  return { alpha, CL, CLmax, CLmin, aStallDeg, aStallNegDeg };
+}
+
+/* Cp at a grid node for the operating wing (loadF = spanwise unloading 0..1) */
+function cpNode(sec, A, k, side, loadF) {
+  const aE = sec.alpha0 + (A.CL * loadF) / Math.max(1e-6, A.a3) * (A.a3 / sec.a2d);
+  const cA = Math.cos(aE), sA = Math.sin(aE);
+  const Vt = side >= 0 ? cA * sec.VxU[k] + sA * sec.VyU[k]
+                       : cA * sec.VxL[k] + sA * sec.VyL[k];
+  let cp = 1 - Vt * Vt;
+  // separation plateau on the suction side as stall develops
+  if (A.sSep > 0.02) {
+    const suctionUp = aE >= sec.alpha0;
+    if ((side >= 0) === suctionUp) {
+      const xi = XI[k], xsep = 1 - 0.85 * A.sSep;
+      const w = sstep(xsep - 0.06, xsep + 0.10, xi);
+      cp = mix(cp, -0.45 - 0.3 * A.sSep, w * clamp(A.sSep * 1.4, 0, 1));
+    }
+  }
+  return cp;
+}
+
+function cpSection(P, sec, A) {
+  const xi = [], cpU = [], cpL = [];
+  for (let k = 0; k < KPTS; k++) {
+    xi.push(XI[k]);
+    cpU.push(cpNode(sec, A, k, 1, 1));
+    cpL.push(cpNode(sec, A, k, -1, 1));
+  }
+  return { xi, cpU, cpL };
+}
+
+/* ---------------- Cp colormap (jet-like) ---------------- */
+const CMAP = [
+  [0.157, 0.267, 0.510], [0.337, 0.475, 0.678], [0.573, 0.667, 0.796],
+  [0.847, 0.863, 0.882], [0.898, 0.718, 0.478], [0.812, 0.478, 0.263],
+  [0.694, 0.259, 0.145]
+];
+function cpColor(cp, cpMin) {
+  const s = clamp((1 - (cp - cpMin) / (1.0 - cpMin)), 0, 1); // cp=+1 -> 0 (navy), cpMin -> 1 (red)
+  const f = s * (CMAP.length - 1), i = Math.min(CMAP.length - 2, Math.floor(f)), u = f - i;
+  const a = CMAP[i], b = CMAP[i + 1];
+  return [mix(a[0], b[0], u), mix(a[1], b[1], u), mix(a[2], b[2], u)];
+}
+function cmapCSS() {
+  const stops = CMAP.map((c, i) =>
+    `rgb(${Math.round(c[0] * 255)},${Math.round(c[1] * 255)},${Math.round(c[2] * 255)}) ${(100 * i / (CMAP.length - 1)).toFixed(0)}%`);
+  return `linear-gradient(to top, ${stops.join(',')})`;
+}
+/* ===== AeroLab full worksheet — every parameter editable ===== */
+const $ = id => document.getElementById(id);
+const IN = { m:2, p:40, t:12, chord:1.2, span:8, taper:0.8, sweep:0, dihedral:3,
+             alpha:4, V:30, T:288.15, W:12000, bank:30, h:0 };
+const KEYS = ['m','p','t','chord','span','taper','sweep','dihedral','alpha','V'];
+
+// inherit configuration from the tunnel via #s=
+(function readHash() {
+  if (typeof location === 'undefined') return;
+  const mm = /#s=([\d.,-]+)/.exec(location.hash || '');
+  if (!mm) return;
+  const v = mm[1].split(',').map(parseFloat);
+  if (v.length >= 10 && !v.slice(0, 10).some(isNaN)) KEYS.forEach((k, i) => IN[k] = v[i]);
+})();
+
+let SEC = null, SECKEY = '';
+function section() {
+  const key = IN.m + '|' + IN.p + '|' + IN.t;
+  if (key !== SECKEY) { SEC = solveSection(sampleNACA(IN.m / 100, IN.p / 100, IN.t / 100)); SECKEY = key; }
+  return SEC;
+}
+
+function ovE()   { return $('ov-e').checked   ? parseFloat($('ov-e-v').value)   : null; }
+function ovCd0() { return $('ov-cd0').checked ? parseFloat($('ov-cd0-v').value) : null; }
+function capK()  { return $('ov-cap').checked ? parseFloat($('ov-cap-v').value) : 0.9; }
+
+/* override-aware wing chain (mirrors computeAero, explicit for the worksheet) */
+function wing(sec, aDeg) {
+  const a = aDeg * D2R, cr = IN.chord, lam = IN.taper, b = IN.span;
+  const cbar = cr * (1 + lam) / 2, S = cbar * b, AR = b * b / S;
+  const cosL = Math.cos(IN.sweep * D2R);
+  const eAuto = clamp(0.98 - 0.06 * (IN.sweep / 30) - 0.06 * Math.abs(1 - lam), 0.72, 0.98);
+  const e = ovE() ?? eAuto;
+  const a3 = sec.a2d * cosL / (1 + sec.a2d * cosL / (Math.PI * e * AR));
+  const cap = capK() * sec.clmax2d * cosL;
+  const CLlin = a3 * (a - sec.alpha0);
+  const CLatt = a >= sec.alpha0 ? softmin(cap, CLlin, 0.22) : -softmin(0.82 * cap, -CLlin, 0.22);
+  const aStar = sec.alpha0 + cap / a3;
+  const dPos = (a - aStar) / D2R, dNeg = ((sec.alpha0 - cap * 0.82 / a3) - a) / D2R;
+  const sSep = Math.max(sstep(-1.5, 4.5, dPos), sstep(-1.5, 4.5, dNeg));
+  const CL = mix(CLatt, 1.15 * Math.sin(2 * (a - sec.alpha0)) * cosL, sSep);
+  const Re2 = IN.rho * IN.V * cbar / IN.mu;
+  const cd0 = ovCd0() ?? cd0Visc(sec, Re2);
+  const cdi = CL * CL / (Math.PI * e * AR);
+  const cdsep = sSep * 1.3 * Math.pow(Math.sin(a), 2);
+  const CD = cd0 + cdi + cdsep;
+  return { cbar, S, AR, e, eAuto, a3, cap, CLlin, CL, sSep, cd0, cdi, cdsep, CD, cosL };
+}
+function stallPoint(sec) {
+  let best = { CL:-9, a:12 };
+  for (let a = -2; a <= 26; a += 0.25) {
+    const w = wing(sec, a);
+    if (w.CL > best.CL) best = { CL:w.CL, a };
+  }
+  return best;
+}
+
+const f1 = v => v.toFixed(1), f2 = v => v.toFixed(2), f3 = v => v.toFixed(3), f4 = v => v.toFixed(4);
+
+function recalc() {
+  const sec = section();
+  const w = wing(sec, IN.alpha);
+  const st = stallPoint(sec);
+  const q = 0.5 * IN.rho * IN.V * IN.V;
+  const Re = IN.rho * IN.V * w.cbar / IN.mu;
+  const L = q * w.S * w.CL, Dg = q * w.S * w.CD;
+  const a0d = sec.alpha0 / D2R;
+  const cl2d = sec.cl2d(IN.alpha * D2R);
+  const aSnd = Math.sqrt(1.4 * 287.05 * IN.T), M = IN.V / aSnd;
+  const beta = M < 0.99 ? 1 / Math.sqrt(Math.max(1e-6, 1 - M * M)) : Infinity;
+
+  $('o-isa').innerHTML = `at h = ${IN.h} m: T_ISA = ${f1(288.15 - 0.0065 * IN.h)} K · using <b>T = ${f1(IN.T)} K</b>, ρ = <b>${f3(IN.rho)} kg/m³</b>, μ = <b>${IN.mu.toExponential(3)} Pa·s</b>`;
+  $('o-mach').innerHTML = `a = √(1.4 · 287 · ${f1(IN.T)}) = ${f1(aSnd)} m/s → M = ${IN.V}/${f1(aSnd)} = <b>${f3(M)}</b>`;
+  $('o-pg').innerHTML = M < 0.3
+    ? `β = <b>${f3(beta)}</b> — below M 0.3 compressibility is negligible; the solver's incompressible assumption holds.`
+    : `β = <b>${isFinite(beta) ? f3(beta) : '—'}</b> <span class="warn">M > 0.3: a Prandtl–Glauert correction of ×β would apply to lift; the solver itself is incompressible.</span>`;
+  $('o-q').innerHTML = `q∞ = ½ · ${f3(IN.rho)} · ${IN.V}² = <b>${f1(q)} Pa</b>`;
+  $('o-re').innerHTML = `Re = ${f3(IN.rho)} · ${IN.V} · ${f3(w.cbar)} / ${IN.mu.toExponential(2)} = <b>${(Re / 1e6).toFixed(2)}×10⁶</b>`;
+  $('o-cbar').innerHTML = `c̄ = ${f2(IN.chord)} · (1 + ${f2(IN.taper)}) / 2 = <b>${f3(w.cbar)} m</b>`;
+  $('o-sar').innerHTML = `S = ${f3(w.cbar)} · ${f2(IN.span)} = <b>${f2(w.S)} m²</b> · AR = ${f2(IN.span)}²/${f2(w.S)} = <b>${f2(w.AR)}</b>`;
+  $('o-a0').innerHTML = `a₀ = <b>${f3(sec.a2d)} rad⁻¹</b> = ${f4(sec.a2d * D2R)} deg⁻¹ (thin-airfoil theory: 2π ≈ 6.283 — thickness raises it)`;
+  $('o-al0').innerHTML = `α₀ = <b>${f2(a0d)}°</b> — set entirely by camber (m = ${IN.m}%)`;
+  $('o-cl2d').innerHTML = `c_l(${f1(IN.alpha)}°) = ${f3(sec.a2d)} · (${f1(IN.alpha)} − ${f2(a0d)})°·π/180 = <b>${f3(cl2d)}</b> (2D, inviscid)`;
+  $('o-cm').innerHTML = `c_m,c/4 = <b>${f4(sec.cm2d(IN.alpha * D2R))}</b> — nearly constant with α: c/4 is the aerodynamic centre`;
+  $('o-clmax2d').innerHTML = `= 1.45 + 5·${(IN.m / 100).toFixed(2)} − 4·|${(IN.t / 100).toFixed(2)} − 0.13| = <b>${f2(sec.clmax2d)}</b> (empirical — potential flow can't stall)`;
+  $('o-e').innerHTML = (ovE() !== null ? `<span class="warn">OVERRIDDEN:</span> e = <b>${f3(w.e)}</b> (formula gives ${f3(w.eAuto)})`
+    : `e = 0.98 − 0.06·(${IN.sweep}/30) − 0.06·|1−${f2(IN.taper)}| = <b>${f3(w.e)}</b>`);
+  $('o-a3').innerHTML = `a = ${f3(sec.a2d)}·${f3(w.cosL)} / (1 + ${f3(sec.a2d)}·${f3(w.cosL)}/(π·${f3(w.e)}·${f2(w.AR)})) = <b>${f3(w.a3)} rad⁻¹</b>`;
+  $('o-cl').innerHTML = `C_L = ${f3(w.a3)}·(${f1(IN.alpha)} − ${f2(a0d)})°·π/180 = ${f3(w.CLlin)}` +
+    (Math.abs(w.CLlin - w.CL) > 0.01 ? ` → <span class="warn">stall blend</span> → <b>${f3(w.CL)}</b>` : ` ≈ <b>${f3(w.CL)}</b>`);
+  $('o-cap').innerHTML = `= ${f2(capK())} · ${f2(sec.clmax2d)} · ${f3(w.cosL)} = <b>${f2(w.cap)}</b>` + ($('ov-cap').checked ? ' <span class="warn">(k overridden)</span>' : '');
+  $('o-stall').innerHTML = `sweeping α: C_L,max = <b>${f3(st.CL)}</b> at α_stall = <b>${f1(st.a)}°</b> · separation factor now: ${f2(w.sSep)}`;
+  {
+    const Cf2 = 0.455 / Math.pow(Math.log10(Math.max(3e4, Re)), 2.58);
+    const FF2 = 1 + 2.7 * sec.tEff + 100 * Math.pow(sec.tEff, 4);
+    $('o-cd0').innerHTML = (ovCd0() !== null ? `<span class="warn">OVERRIDDEN:</span> C_d0 = <b>${f4(w.cd0)}</b> (viscous model gives ${f4(cd0Visc(sec, Re))})`
+      : `Cf = 0.455/(log₁₀ ${(Re / 1e6).toFixed(2)}×10⁶)^2.58 = ${Cf2.toFixed(5)} · FF = ${FF2.toFixed(3)} → C_d0 = 2·Cf·FF + 0.01m = <b>${f4(w.cd0)}</b>`);
+  }
+  $('o-cdi').innerHTML = `= ${f3(w.CL)}²/(π·${f3(w.e)}·${f2(w.AR)}) = <b>${f4(w.cdi)}</b> — the price of finite span`;
+  $('o-cd').innerHTML = `C_D = ${f4(w.cd0)} + ${f4(w.cdi)} + ${f4(w.cdsep)} = <b>${f4(w.CD)}</b>`;
+  $('o-forces').innerHTML = `L = ${f1(q)}·${f2(w.S)}·${f3(w.CL)} = <b>${Math.round(L)} N</b> · D = <b>${Math.round(Dg)} N</b> · L/D = <b>${f1(L / Math.max(1e-9, Dg))}</b>`;
+
+  const CLlev = 2 * IN.W / (IN.rho * IN.V * IN.V * w.S);
+  const Vs = Math.sqrt(2 * IN.W / (IN.rho * w.S * Math.max(0.05, st.CL)));
+  const n = 1 / Math.cos(IN.bank * D2R), Vsn = Vs * Math.sqrt(n);
+  const R = IN.V * IN.V / (9.81 * Math.tan(Math.max(0.5, IN.bank) * D2R));
+  $('o-cllevel').innerHTML = `= 2·${IN.W}/(${f3(IN.rho)}·${IN.V}²·${f2(w.S)}) = <b>${f3(CLlev)}</b> — ` +
+    (CLlev > st.CL ? `<span class="warn">above C_L,max: this wing cannot hold level flight at ${IN.V} m/s with W = ${IN.W} N</span>`
+                   : `attainable (C_L,max = ${f3(st.CL)})`);
+  $('o-vstall').innerHTML = `= √(2·${IN.W}/(${f3(IN.rho)}·${f2(w.S)}·${f3(st.CL)})) = <b>${f1(Vs)} m/s</b> = ${f1(Vs * 1.944)} kt`;
+  $('o-n').innerHTML = `φ = ${IN.bank}° → n = <b>${f2(n)} g</b> · accelerated stall speed = ${f1(Vs)}·√${f2(n)} = <b>${f1(Vsn)} m/s</b>`;
+  $('o-turn').innerHTML = `R = ${IN.V}²/(9.81·tan ${IN.bank}°) = <b>${f1(R)} m</b> · turn rate = <b>${(IN.V / R * 180 / Math.PI).toFixed(1)} °/s</b>`;
+}
+
+/* ---------- wiring ---------- */
+function wire() {
+  Object.keys(IN).forEach(k => {
+    const el = $('in-' + k);
+    if (!el) return;
+    el.value = IN[k];
+    el.addEventListener('input', () => {
+      const v = parseFloat(el.value);
+      if (!isNaN(v)) { IN[k] = v; recalc(); }
+    });
+  });
+  $('in-rho').value = IN.rho = 1.225;
+  $('in-mu').value = IN.mu = 1.81e-5;
+  ['ov-e', 'ov-e-v', 'ov-cd0', 'ov-cd0-v', 'ov-cap', 'ov-cap-v'].forEach(id =>
+    $(id).addEventListener('input', recalc));
+  $('btn-isa').addEventListener('click', () => {
+    const h = clamp(IN.h, 0, 11000);
+    const T = 288.15 - 0.0065 * h;
+    const rho = 1.225 * Math.pow(1 - 2.2558e-5 * h, 4.2559);
+    const mu = 1.716e-5 * Math.pow(T / 273.15, 1.5) * (273.15 + 110.4) / (T + 110.4);
+    IN.T = +T.toFixed(2); IN.rho = +rho.toFixed(4); IN.mu = +mu.toExponential(4);
+    $('in-T').value = IN.T; $('in-rho').value = IN.rho; $('in-mu').value = IN.mu;
+    recalc();
+  });
+  if (typeof katex !== 'undefined') {
+    document.querySelectorAll('.ftex').forEach(el => {
+      try { katex.render(el.dataset.tex, el, { throwOnError:false }); } catch (e) {}
+    });
+  } else {
+    window.addEventListener('load', () => {
+      if (typeof katex === 'undefined') { document.querySelectorAll('.ftex').forEach(el => el.textContent = el.dataset.tex); return; }
+      document.querySelectorAll('.ftex').forEach(el => {
+        try { katex.render(el.dataset.tex, el, { throwOnError:false }); } catch (e) {}
+      });
+    });
+  }
+}
+IN.rho = 1.225; IN.mu = 1.81e-5;
+wire();
+recalc();
+</script>
+</body>
+</html>
